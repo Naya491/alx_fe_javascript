@@ -478,5 +478,90 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
     populateCategories();
     showRandomQuote();
   });
-  
+  // Simulated server URL (just for structure)
+const SERVER_API = 'https://jsonplaceholder.typicode.com/posts';
+
+// Fetch "server" data (mocked)
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch(SERVER_API);
+        const data = await response.json();
+        // Simulate getting server quotes structure
+        const serverQuotes = data.slice(0, 5).map((item, index) => ({
+            text: item.title,
+            category: "Server",
+            updatedAt: new Date().toISOString()
+        }));
+        return serverQuotes;
+    } catch (error) {
+        console.error("Error fetching from server:", error);
+        return [];
+    }
+}
+
+// Post new quote to "server" (mocked)
+async function postQuoteToServer(quote) {
+    try {
+        await fetch(SERVER_API, {
+            method: 'POST',
+            body: JSON.stringify(quote),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log("Posted quote to server:", quote);
+    } catch (error) {
+        console.error("Error posting to server:", error);
+    }
+}
+function mergeQuotes(localQuotes, serverQuotes) {
+    const merged = [...localQuotes];
+
+    serverQuotes.forEach(serverQuote => {
+        const exists = localQuotes.find(
+            q => q.text === serverQuote.text && q.category === serverQuote.category
+        );
+        if (!exists) {
+            merged.push(serverQuote);
+        }
+    });
+
+    return merged;
+}
+
+async function syncWithServer() {
+    const localQuotes = getQuotesFromStorage();
+    const serverQuotes = await fetchQuotesFromServer();
+
+    const mergedQuotes = mergeQuotes(localQuotes, serverQuotes);
+    saveQuotesToStorage(mergedQuotes);
+    alert("Quotes synced with server.");
+    renderQuotes(); // update UI
+}
+function addQuote() {
+    const text = document.getElementById('newQuoteText').value;
+    const category = document.getElementById('newQuoteCategory').value;
+
+    if (!text || !category) return alert("Please enter both fields.");
+
+    const newQuote = {
+        text,
+        category,
+        updatedAt: new Date().toISOString()
+    };
+
+    quotes.push(newQuote);
+    saveQuotesToStorage(quotes);
+    postQuoteToServer(newQuote); // Simulate server sync
+    renderQuotes();
+}
+document.getElementById('notification').textContent = "Quotes synced with server.";
+setTimeout(() => {
+    document.getElementById('notification').textContent = "";
+}, 3000);
+
+setInterval(syncWithServer, 60000); // Sync every 60 seconds
+
+
+
   
