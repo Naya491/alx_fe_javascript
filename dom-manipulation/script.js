@@ -389,3 +389,16 @@ document.addEventListener('DOMContentLoaded', () => {
   categorySelect = document.getElementById('categorySelect');
   if (categorySelect) categorySelect.addEventListener('change', showRandomQuote);
 });
+function exportToJsonFile() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "quotes.json";
+    link.click();
+  
+    URL.revokeObjectURL(url);
+  }
+  
