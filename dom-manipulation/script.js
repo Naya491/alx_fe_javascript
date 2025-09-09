@@ -561,7 +561,29 @@ setTimeout(() => {
 }, 3000);
 
 setInterval(syncWithServer, 60000); // Sync every 60 seconds
-
+// Function to simulate syncing quotes with a server
+async function syncQuotes() {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+      const serverData = await response.json();
+  
+      // For demo purposes, map server data to quotes
+      const serverQuotes = serverData.slice(0, 5).map(post => ({
+        text: post.title,
+        category: "Server"
+      }));
+  
+      // Conflict resolution: server data takes precedence
+      quotes = [...quotes, ...serverQuotes];
+      saveQuotes();
+  
+      alert("Quotes synced with server!");
+    } catch (error) {
+      console.error("Error syncing quotes:", error);
+      alert("Failed to sync quotes with server.");
+    }
+  }
+  
 
 
   
