@@ -401,4 +401,82 @@ function exportToJsonFile() {
   
     URL.revokeObjectURL(url);
   }
+  // Load quotes from localStorage or default
+let quotes = JSON.parse(localStorage.getItem("quotes")) || [
+    { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
+    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+    { text: "The journey of a thousand miles begins with a single step.", category: "Motivation" }
+  ];
+  
+  // Show a random quote
+  function showRandomQuote() {
+    const category = localStorage.getItem("selectedCategory") || "all";
+    let filteredQuotes = quotes;
+  
+    if (category !== "all") {
+      filteredQuotes = quotes.filter(q => q.category === category);
+    }
+  
+    if (filteredQuotes.length === 0) {
+      document.getElementById("quoteDisplay").innerText = "No quotes in this category.";
+      return;
+    }
+  
+    const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+    document.getElementById("quoteDisplay").innerText = filteredQuotes[randomIndex].text;
+  }
+  
+  // Save quotes to localStorage
+  function saveQuotes() {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
+  }
+  
+  // Add a new quote
+  function addQuote() {
+    const newText = document.getElementById("newQuoteText").value.trim();
+    const newCategory = document.getElementById("newQuoteCategory").value.trim();
+  
+    if (newText && newCategory) {
+      quotes.push({ text: newText, category: newCategory });
+      saveQuotes();
+      populateCategories(); // update dropdown if new category added
+      alert("Quote added successfully!");
+      document.getElementById("newQuoteText").value = "";
+      document.getElementById("newQuoteCategory").value = "";
+    } else {
+      alert("Please enter both quote text and category.");
+    }
+  }
+  
+  // Populate categories dynamically
+  function populateCategories() {
+    const categoryFilter = document.getElementById("categoryFilter");
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+  
+    const categories = [...new Set(quotes.map(q => q.category))];
+    categories.forEach(category => {
+      const option = document.createElement("option");
+      option.value = category;
+      option.textContent = category;
+      categoryFilter.appendChild(option);
+    });
+  
+    // Restore last selected category
+    const savedCategory = localStorage.getItem("selectedCategory") || "all";
+    categoryFilter.value = savedCategory;
+  }
+  
+  // Filter quotes by category
+  function filterQuotes() {
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    localStorage.setItem("selectedCategory", selectedCategory);
+    showRandomQuote();
+  }
+  
+  // Initialize
+  document.addEventListener("DOMContentLoaded", () => {
+    populateCategories();
+    showRandomQuote();
+  });
+  
   
